@@ -31,7 +31,7 @@
 #
 
 require 'sensu-plugin/check/cli'
-require 'mysql'
+require 'mysql2'
 require 'inifile'
 
 class CheckMySQLHealth < Sensu::Plugin::Check::CLI

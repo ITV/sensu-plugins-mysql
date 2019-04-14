@@ -36,7 +36,7 @@
 #
 
 require 'sensu-plugin/metric/cli'
-require 'mysql'
+require 'mysql2'
 require 'socket'
 require 'inifile'
 
@@ -225,8 +225,6 @@ class MysqlGraphite < Sensu::Plugin::Metric::CLI::Graphite
 
         hostname.split(' ').each do |mysql_host| # rubocop:disable Metrics/BlockLength
             mysql_shorthostname = mysql_host.split('.')[0]
-
-
 
         begin
             db = Mysql2::Client.new(:hostname => hostname, :username => db_user, :password => db_pass, :database => database, :port => port, :socket => socket)
