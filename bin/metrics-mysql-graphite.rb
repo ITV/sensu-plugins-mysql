@@ -90,184 +90,196 @@ class MysqlGraphite < Sensu::Plugin::Metric::CLI::Graphite
          long: '--verbose',
          boolean: true
 
-  def metrics_hash
-    {
-      'general' => {
-        'Bytes_received' =>         'rxBytes',
-        'Bytes_sent' =>             'txBytes',
-        'Key_read_requests' =>      'keyRead_requests',
-        'Key_reads' =>              'keyReads',
-        'Key_write_requests' =>     'keyWrite_requests',
-        'Key_writes' =>             'keyWrites',
-        'Binlog_cache_use' =>       'binlogCacheUse',
-        'Binlog_cache_disk_use' =>  'binlogCacheDiskUse',
-        'Max_used_connections' =>   'maxUsedConnections',
-        'Aborted_clients' =>        'abortedClients',
-        'Aborted_connects' =>       'abortedConnects',
-        'Threads_connected' =>      'threadsConnected',
-        'Open_files' =>             'openFiles',
-        'Open_tables' =>            'openTables',
-        'Opened_tables' =>          'openedTables',
-        'Prepared_stmt_count' =>    'preparedStmtCount',
-        'Seconds_Behind_Master' =>  'slaveLag',
-        'Select_full_join' =>       'fullJoins',
-        'Select_full_range_join' => 'fullRangeJoins',
-        'Select_range' =>           'selectRange',
-        'Select_range_check' =>     'selectRange_check',
-        'Select_scan' =>            'selectScan',
-        'Slow_queries' =>           'slowQueries',
-      },
-      'querycache' => {
-        'Qcache_queries_in_cache' =>  'queriesInCache',
-        'Qcache_hits' =>              'cacheHits',
-        'Qcache_inserts' =>           'inserts',
-        'Qcache_not_cached' =>        'notCached',
-        'Qcache_lowmem_prunes' =>     'lowMemPrunes',
-      },
-      'commands' => {
-        'Com_admin_commands' => 'admin_commands',
-        'Com_begin' =>          'begin',
-        'Com_change_db' =>      'change_db',
-        'Com_commit' =>         'commit',
-        'Com_create_table' =>   'create_table',
-        'Com_drop_table' =>     'drop_table',
-        'Com_show_keys' =>      'show_keys',
-        'Com_delete' =>         'delete',
-        'Com_create_db' =>      'create_db',
-        'Com_grant' =>          'grant',
-        'Com_show_processlist' => 'show_processlist',
-        'Com_flush' =>          'flush',
-        'Com_insert' =>         'insert',
-        'Com_purge' =>          'purge',
-        'Com_replace' =>        'replace',
-        'Com_rollback' =>       'rollback',
-        'Com_select' =>         'select',
-        'Com_set_option' =>     'set_option',
-        'Com_show_binlogs' =>   'show_binlogs',
-        'Com_show_databases' => 'show_databases',
-        'Com_show_fields' =>    'show_fields',
-        'Com_show_status' =>    'show_status',
-        'Com_show_tables' =>    'show_tables',
-        'Com_show_variables' => 'show_variables',
-        'Com_update' =>         'update',
-        'Com_drop_db' =>        'drop_db',
-        'Com_revoke' =>         'revoke',
-        'Com_drop_user' =>      'drop_user',
-        'Com_show_grants' =>    'show_grants',
-        'Com_lock_tables' =>    'lock_tables',
-        'Com_show_create_table' => 'show_create_table',
-        'Com_unlock_tables' =>  'unlock_tables',
-        'Com_alter_table' =>    'alter_table',
-      },
-      'counters' => {
-        'Handler_write' =>              'handlerWrite',
-        'Handler_update' =>             'handlerUpdate',
-        'Handler_delete' =>             'handlerDelete',
-        'Handler_read_first' =>         'handlerRead_first',
-        'Handler_read_key' =>           'handlerRead_key',
-        'Handler_read_next' =>          'handlerRead_next',
-        'Handler_read_prev' =>          'handlerRead_prev',
-        'Handler_read_rnd' =>           'handlerRead_rnd',
-        'Handler_read_rnd_next' =>      'handlerRead_rnd_next',
-        'Handler_commit' =>             'handlerCommit',
-        'Handler_rollback' =>           'handlerRollback',
-        'Handler_savepoint' =>          'handlerSavepoint',
-        'Handler_savepoint_rollback' => 'handlerSavepointRollback',
-      },
-      'innodb' => {
-        'Innodb_buffer_pool_pages_total' =>   'bufferTotal_pages',
-        'Innodb_buffer_pool_pages_free' =>    'bufferFree_pages',
-        'Innodb_buffer_pool_pages_dirty' =>   'bufferDirty_pages',
-        'Innodb_buffer_pool_pages_data' =>    'bufferUsed_pages',
-        'Innodb_page_size' =>                 'pageSize',
-        'Innodb_pages_created' =>             'pagesCreated',
-        'Innodb_pages_read' =>                'pagesRead',
-        'Innodb_pages_written' =>             'pagesWritten',
-        'Innodb_row_lock_current_waits' =>    'currentLockWaits',
-        'Innodb_row_lock_waits' =>            'lockWaitTimes',
-        'Innodb_row_lock_time' =>             'rowLockTime',
-        'Innodb_data_reads' =>                'fileReads',
-        'Innodb_data_writes' =>               'fileWrites',
-        'Innodb_data_fsyncs' =>               'fileFsyncs',
-        'Innodb_log_writes' =>                'logWrites',
-        'Innodb_rows_updated' =>              'rowsUpdated',
-        'Innodb_rows_read' =>                 'rowsRead',
-        'Innodb_rows_deleted' =>              'rowsDeleted',
-        'Innodb_rows_inserted' =>             'rowsInserted',
-      },
-      'configuration' => {
-        'max_connections'         =>          'MaxConnections',
-        'Max_prepared_stmt_count' =>          'MaxPreparedStmtCount',
-      },
-    }
-  end
+    def metrics_hash
+        {
+            'general' => {
+                'Bytes_received'         => 'rxBytes',
+                'Bytes_sent'             => 'txBytes',
+                'Key_read_requests'      =>  'keyRead_requests',
+                'Key_reads'              =>  'keyReads',
+                'Key_write_requests'     => 'keyWrite_requests',
+                'Key_writes'             => 'keyWrites',
+                'Binlog_cache_use'       => 'binlogCacheUse',
+                'Binlog_cache_disk_use'  =>  'binlogCacheDiskUse',
+                'Max_used_connections'   => 'maxUsedConnections',
+                'Aborted_clients'        =>  'abortedClients',
+                'Aborted_connects'       => 'abortedConnects',
+                'Threads_connected'      =>  'threadsConnected',
+                'Open_files'             => 'openFiles',
+                'Open_tables'            =>  'openTables',
+                'Opened_tables'          =>  'openedTables',
+                'Prepared_stmt_count'    =>  'preparedStmtCount',
+                'Seconds_Behind_Master'  =>  'slaveLag',
+                'Select_full_join'       => 'fullJoins',
+                'Select_full_range_join' => 'fullRangeJoins',
+                'Select_range'           => 'selectRange',
+                'Select_range_check'     => 'selectRange_check',
+                'Select_scan'            =>  'selectScan',
+                'Slow_queries'           => 'slowQueries',
+            },
+            'querycache' => {
+                'Qcache_queries_in_cache' =>  'queriesInCache',
+                'Qcache_hits'             =>  'cacheHits',
+                'Qcache_inserts'          => 'inserts',
+                'Qcache_not_cached'       =>  'notCached',
+                'Qcache_lowmem_prunes'    => 'lowMemPrunes',
+            },
+            'commands' => {
+                'Com_admin_commands'    => 'admin_commands',
+                'Com_begin'             =>  'begin',
+                'Com_change_db'         =>  'change_db',
+                'Com_commit'            => 'commit',
+                'Com_create_table'      => 'create_table',
+                'Com_drop_table'        => 'drop_table',
+                'Com_show_keys'         =>  'show_keys',
+                'Com_delete'            => 'delete',
+                'Com_create_db'         =>  'create_db',
+                'Com_grant'             =>  'grant',
+                'Com_show_processlist'  => 'show_processlist',
+                'Com_flush'             =>  'flush',
+                'Com_insert'            => 'insert',
+                'Com_purge'             =>  'purge',
+                'Com_replace'           =>  'replace',
+                'Com_rollback'          => 'rollback',
+                'Com_select'            => 'select',
+                'Com_set_option'        => 'set_option',
+                'Com_show_binlogs'      => 'show_binlogs',
+                'Com_show_databases'    => 'show_databases',
+                'Com_show_fields'       =>  'show_fields',
+                'Com_show_status'       =>  'show_status',
+                'Com_show_tables'       =>  'show_tables',
+                'Com_show_variables'    => 'show_variables',
+                'Com_update'            => 'update',
+                'Com_drop_db'           =>  'drop_db',
+                'Com_revoke'            => 'revoke',
+                'Com_drop_user'         =>  'drop_user',
+                'Com_show_grants'       =>  'show_grants',
+                'Com_lock_tables'       =>  'lock_tables',
+                'Com_show_create_table' => 'show_create_table',
+                'Com_unlock_tables'     =>  'unlock_tables',
+                'Com_alter_table'       =>  'alter_table',
+            },
+            'counters' => {
+                'Handler_write'              => 'handlerWrite',
+                'Handler_update'             => 'handlerUpdate',
+                'Handler_delete'             => 'handlerDelete',
+                'Handler_read_first'         =>  'handlerRead_first',
+                'Handler_read_key'           =>  'handlerRead_key',
+                'Handler_read_next'          => 'handlerRead_next',
+                'Handler_read_prev'          => 'handlerRead_prev',
+                'Handler_read_rnd'           => 'handlerRead_rnd',
+                'Handler_read_rnd_next'      => 'handlerRead_rnd_next',
+                'Handler_commit'             => 'handlerCommit',
+                'Handler_rollback'           => 'handlerRollback',
+                'Handler_savepoint'          => 'handlerSavepoint',
+                'Handler_savepoint_rollback' => 'handlerSavepointRollback',
+            },
+            'innodb' => {
+                'Innodb_buffer_pool_pages_total' => 'bufferTotal_pages',
+                'Innodb_buffer_pool_pages_free'  => 'bufferFree_pages',
+                'Innodb_buffer_pool_pages_dirty' => 'bufferDirty_pages',
+                'Innodb_buffer_pool_pages_data'  => 'bufferUsed_pages',
+                'Innodb_page_size'               => 'pageSize',
+                'Innodb_pages_created'           => 'pagesCreated',
+                'Innodb_pages_read'              => 'pagesRead',
+                'Innodb_pages_written'           => 'pagesWritten',
+                'Innodb_row_lock_current_waits'  => 'currentLockWaits',
+                'Innodb_row_lock_waits'          => 'lockWaitTimes',
+                'Innodb_row_lock_time'           => 'rowLockTime',
+                'Innodb_data_reads'              => 'fileReads',
+                'Innodb_data_writes'             => 'fileWrites',
+                'Innodb_data_fsyncs'             => 'fileFsyncs',
+                'Innodb_log_writes'              => 'logWrites',
+                'Innodb_rows_updated'            => 'rowsUpdated',
+                'Innodb_rows_read'               => 'rowsRead',
+                'Innodb_rows_deleted'            => 'rowsDeleted',
+                'Innodb_rows_inserted'           => 'rowsInserted',
+            },
+            'configuration' => {
+                'max_connections'         => 'MaxConnections',
+                'Max_prepared_stmt_count' => 'MaxPreparedStmtCount',
+            },
+        }
+    end
 
-  def run
-    # props to https://github.com/coredump/hoardd/blob/master/scripts-available/mysql.coffee
+    def run
+        # props to https://github.com/coredump/hoardd/blob/master/scripts-available/mysql.coffee
 
-    metrics = metrics_hash
+        metrics = metrics_hash
 
-    # FIXME: break this up
-    config[:host].split(' ').each do |mysql_host| # rubocop:disable Metrics/BlockLength
-      mysql_shorthostname = mysql_host.split('.')[0]
-      if config[:ini]
-        ini = IniFile.load(config[:ini])
-        section = ini[config[:ini_section]]
-        db_user = section['user']
-        db_pass = section['password']
-      else
-        db_user = config[:username]
-        db_pass = config[:password]
-      end
-      begin
-        mysql = Mysql.new(mysql_host, db_user, db_pass, nil, config[:port], config[:socket])
+        # FIXME: break this up
+        config[:host].split(' ').each do |mysql_host| # rubocop:disable Metrics/BlockLength
+            mysql_shorthostname = mysql_host.split('.')[0]
 
-        results = mysql.query('SHOW GLOBAL STATUS')
-      rescue StandardError => e
-        puts e.message
-      end
-
-      results.each_hash do |row|
-        metrics.each do |category, var_mapping|
-          if var_mapping.key?(row['Variable_name'])
-            output "#{config[:scheme]}.#{mysql_shorthostname}.#{category}.#{var_mapping[row['Variable_name']]}", row['Value']
-          end
+        if config[:ini]
+            ini = IniFile.load(config[:ini])
+            section  = ini[config[:ini_section]]
+            hostname = section['hostname']
+            db_user  = section['user']
+            db_pass  = section['password']
+            database = section['database']
+            port     = section['port'].to_i
+            socket   = section['socket']
+        else
+            hostname = config[:hostname]
+            db_user  = config[:user]
+            db_pass  = config[:password]
+            database = config[:database]
+            port     = config[:port].to_i
+            socket   = config[:socket]
         end
-      end
 
-      begin
-        slave_results = mysql.query('SHOW SLAVE STATUS')
-        # should return a single element array containing one hash
-        # #YELLOW
-        slave_results.fetch_hash.each_pair do |key, value|
-          if metrics['general'].include?(key)
-            # Replication lag being null is bad, very bad, so negativate it here
-            value = -1 if key == 'Seconds_Behind_Master' && value.nil?
-            output "#{config[:scheme]}.#{mysql_shorthostname}.general.#{metrics['general'][key]}", value
-          end
+        begin
+            db = Mysql2::Client.new(:hostname => hostname, :username => db_user, :password => db_pass, :database => database, :port => port, :socket => socket)
+
+            results = mysql.query('SHOW GLOBAL STATUS')
+            
+            rescue StandardError => e
+                puts e.message
         end
-      rescue StandardError => e
-        puts "Error querying slave status: #{e}" if config[:verbose]
-      end
 
-      begin
-        variables_results = mysql.query('SHOW GLOBAL VARIABLES')
-
-        category = 'configuration'
-        variables_results.each_hash do |row|
-          metrics[category].each do |metric, desc|
-            if metric.casecmp(row['Variable_name']).zero?
-              output "#{config[:scheme]}.#{mysql_shorthostname}.#{category}.#{desc}", row['Value']
+        results.each_hash do |row|
+            metrics.each do |category, var_mapping|
+                if var_mapping.key?(row['Variable_name'])
+                    output "#{config[:scheme]}.#{mysql_shorthostname}.#{category}.#{var_mapping[row['Variable_name']]}", row['Value']
+                end
             end
-          end
         end
-      rescue StandardError => e
-        puts e.message
-      end
 
-      mysql.close if mysql
+        begin
+            slave_results = mysql.query('SHOW SLAVE STATUS')
+            # should return a single element array containing one hash
+            # #YELLOW
+            slave_results.fetch_hash.each_pair do |key, value|
+                if metrics['general'].include?(key)
+                    # Replication lag being null is bad, very bad, so negativate it here
+                    value = -1 if key == 'Seconds_Behind_Master' && value.nil?
+                        output "#{config[:scheme]}.#{mysql_shorthostname}.general.#{metrics['general'][key]}", value
+                    end
+                end
+
+            rescue StandardError => e
+                puts "Error querying slave status: #{e}" if config[:verbose]
+        end
+
+        begin
+            variables_results = mysql.query('SHOW GLOBAL VARIABLES')
+            category = 'configuration'
+
+            variables_results.each_hash do |row|
+                metrics[category].each do |metric, desc|
+                    if metric.casecmp(row['Variable_name']).zero?
+                        output "#{config[:scheme]}.#{mysql_shorthostname}.#{category}.#{desc}", row['Value']
+                    end
+                end
+            end
+
+        rescue StandardError => e
+                puts e.message
+        end
+        mysql.close if mysql
     end
 
     ok
-  end
+    end
 end
