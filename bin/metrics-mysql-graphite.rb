@@ -203,13 +203,7 @@ class MysqlGraphite < Sensu::Plugin::Metric::CLI::Graphite
     end
 
     def run
-        # props to https://github.com/coredump/hoardd/blob/master/scripts-available/mysql.coffee
-
         metrics = metrics_hash
-
-        # FIXME: break this up
-        config[:host].split(' ').each do |mysql_host| # rubocop:disable Metrics/BlockLength
-            mysql_shorthostname = mysql_host.split('.')[0]
 
         if config[:ini]
             ini = IniFile.load(config[:ini])
@@ -229,11 +223,14 @@ class MysqlGraphite < Sensu::Plugin::Metric::CLI::Graphite
             socket   = config[:socket]
         end
 
+        hostname.split(' ').each do |mysql_host| # rubocop:disable Metrics/BlockLength
+            mysql_shorthostname = mysql_host.split('.')[0]
+
+
+
         begin
             db = Mysql2::Client.new(:hostname => hostname, :username => db_user, :password => db_pass, :database => database, :port => port, :socket => socket)
-
-            results = mysql.query('SHOW GLOBAL STATUS')
-            
+            results = db.query('SHOW GLOBAL STATUS')
             rescue StandardError => e
                 puts e.message
         end
@@ -247,23 +244,22 @@ class MysqlGraphite < Sensu::Plugin::Metric::CLI::Graphite
         end
 
         begin
-            slave_results = mysql.query('SHOW SLAVE STATUS')
+            slave_results = db.query('SHOW SLAVE STATUS')
             # should return a single element array containing one hash
             # #YELLOW
             slave_results.fetch_hash.each_pair do |key, value|
                 if metrics['general'].include?(key)
                     # Replication lag being null is bad, very bad, so negativate it here
                     value = -1 if key == 'Seconds_Behind_Master' && value.nil?
-                        output "#{config[:scheme]}.#{mysql_shorthostname}.general.#{metrics['general'][key]}", value
-                    end
+                    output "#{config[:scheme]}.#{mysql_shorthostname}.general.#{metrics['general'][key]}", value
                 end
-
+            end
             rescue StandardError => e
                 puts "Error querying slave status: #{e}" if config[:verbose]
         end
 
         begin
-            variables_results = mysql.query('SHOW GLOBAL VARIABLES')
+            variables_results = db.query('SHOW GLOBAL VARIABLES')
             category = 'configuration'
 
             variables_results.each_hash do |row|
@@ -273,11 +269,9 @@ class MysqlGraphite < Sensu::Plugin::Metric::CLI::Graphite
                     end
                 end
             end
-
-        rescue StandardError => e
+            rescue StandardError => e
                 puts e.message
         end
-        mysql.close if mysql
     end
 
     ok
