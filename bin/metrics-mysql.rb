@@ -21,38 +21,38 @@
 
 require 'sensu-handler'
 require 'json'
-require 'mysql'
+require 'mysql2'
 
 class MysqlMetric < Sensu::Handler
-  # override filters from Sensu::Handler. not appropriate for metric handlers
-  def filter; end
+    # override filters from Sensu::Handler. not appropriate for metric handlers
+    def filter; end
 
-  def handle
-    # mysql settings
-    mysql_hostname = settings['mysql']['hostname']
-    mysql_username = settings['mysql']['username']
-    mysql_password = settings['mysql']['password']
+    def handle
+        # mysql settings
+        mysql_hostname = settings['mysql']['hostname']
+        mysql_username = settings['mysql']['username']
+        mysql_password = settings['mysql']['password']
 
-    # event values
-    client_id = @event['client']['name']
-    check_name = @event['check']['name']
-    check_issued = @event['check']['issued']
-    check_output = @event['check']['output']
-    check_status = @event['check']['status']
+        # event values
+        client_id = @event['client']['name']
+        check_name = @event['check']['name']
+        check_issued = @event['check']['issued']
+        check_output = @event['check']['output']
+        check_status = @event['check']['status']
 
-    begin
-      con = Mysql.new mysql_hostname, mysql_username, mysql_password
-      con.query('INSERT INTO '\
-                'sensumetrics.sensu_historic_metrics('\
-                'client_id, check_name, issue_time, '\
-                'output, status) '\
-                "VALUES ('#{client_id}', '#{check_name}', "\
-                "#{check_issued}, '#{check_output}', #{check_status})")
-    rescue Mysql::Error => e
-      puts e.errno
-      puts e.error
-    ensure
-      con.close if con
+        begin
+            db = Mysql2::Client.new(:hostname => hostname, :username => db_user, :password => db_pass, :database => database, :port => port, :socket => socket)
+            db.query('INSERT INTO '\
+                    'sensumetrics.sensu_historic_metrics('\
+                    'client_id, check_name, issue_time, '\
+                    'output, status) '\
+                    "VALUES ('#{client_id}', '#{check_name}', "\
+                    "#{check_issued}, '#{check_output}', #{check_status})")
+            rescue Mysql::Error => e
+                puts e.errno
+                puts e.error
+            ensure
+                db.close if db
+        end
     end
-  end
 end
