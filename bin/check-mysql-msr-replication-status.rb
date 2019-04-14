@@ -19,7 +19,7 @@
 #
 
 require 'sensu-plugin/check/cli'
-require 'mysql'
+require 'mysql2'
 require 'inifile'
 
 class CheckMysqlMSRReplicationStatus < Sensu::Plugin::Check::CLI
@@ -106,7 +106,7 @@ class CheckMysqlMSRReplicationStatus < Sensu::Plugin::Check::CLI
       crit_statuses = []
       output = []
 
-      db = Mysql.new(db_host, db_user, db_pass, nil, config[:port], config[:socket])
+      db = Mysql2::Client.new(:hostname => config[:hostname], :username => db_user, :password => db_pass, :database =>config[:database], :port => config[:port].to_i, :socket => config[:socket])
       channels = db.query('SELECT channel_name FROM performance_schema.replication_connection_status')
 
       channels.num_rows.times do

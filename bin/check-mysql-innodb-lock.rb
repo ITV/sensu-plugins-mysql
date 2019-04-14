@@ -11,7 +11,7 @@
 # for details.
 
 require 'sensu-plugin/check/cli'
-require 'mysql'
+require 'mysql2'
 require 'inifile'
 
 class CheckMySQLInnoDBLock < Sensu::Plugin::Check::CLI
@@ -75,7 +75,7 @@ class CheckMySQLInnoDBLock < Sensu::Plugin::Check::CLI
       db_user = config[:user]
       db_pass = config[:password]
     end
-    db = Mysql.new(config[:hostname], db_user, db_pass, config[:database], config[:port].to_i, config[:socket])
+    db = Mysql2::Client.new(:hostname => config[:hostname], :username => db_user, :password => db_pass, :database =>config[:database], :port => config[:port].to_i, :socket => config[:socket])
 
     warn = config[:warn].to_i
     crit = config[:crit].to_i

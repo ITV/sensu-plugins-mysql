@@ -8,6 +8,7 @@
 # Copyright 2011 Joe Crim <josephcrim@gmail.com>
 # Updated by Lewis Preson 2012 to accept a database parameter
 # Updated by Oluwaseun Obajobi 2014 to accept ini argument
+# Updated by Geoff Winans <gwinans@gmail.com> 2019 to use mysql2 gem
 #
 # Released under the same terms as Sensu (the MIT license); see LICENSE
 # for details.
@@ -32,7 +33,7 @@
 #
 
 require 'sensu-plugin/check/cli'
-require 'mysql'
+require 'mysql2'
 require 'inifile'
 
 class CheckMySQL < Sensu::Plugin::Check::CLI
@@ -65,7 +66,7 @@ class CheckMySQL < Sensu::Plugin::Check::CLI
          description: 'Database schema to connect to',
          short: '-d DATABASE',
          long: '--database DATABASE',
-         default: 'test'
+         default: 'mysql'
 
   option :port,
          description: 'Port to connect to',
@@ -84,16 +85,20 @@ class CheckMySQL < Sensu::Plugin::Check::CLI
       section = ini[config[:ini_section]]
       db_user = section['user']
       db_pass = section['password']
+      port    = section['port'].to_i
+      socket  = section['socket']
     else
       db_user = config[:user]
       db_pass = config[:password]
+      port    = config[:port].to_i
+      socket  = config[:socket]
     end
 
     begin
-      db = Mysql.real_connect(config[:hostname], db_user, db_pass, config[:database], config[:port].to_i, config[:socket])
-      info = db.get_server_info
+      db = Mysql2::Client.new(:hostname => config[:hostname], :username => db_user, :password => db_pass, :database =>config[:database], :port => port, :socket => socket)
+      info = db.server_info
       ok "Server version: #{info}"
-    rescue Mysql::Error => e
+    rescue Mysql2::Error => e
       critical "Error message: #{e.error}"
     ensure
       db.close if db

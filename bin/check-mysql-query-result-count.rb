@@ -10,7 +10,7 @@
 # for details.
 
 require 'sensu-plugin/check/cli'
-require 'mysql'
+require 'mysql2'
 require 'inifile'
 
 class MysqlQueryCountCheck < Sensu::Plugin::Check::CLI
@@ -89,7 +89,7 @@ class MysqlQueryCountCheck < Sensu::Plugin::Check::CLI
       db_user = config[:username]
       db_pass = config[:password]
     end
-    db = Mysql.real_connect(config[:host], db_user, db_pass, config[:database], config[:port].to_i, config[:socket])
+    db = Mysql2::Client.new(:hostname => config[:hostname], :username => db_user, :password => db_pass, :database =>config[:database], :port => config[:port].to_i, :socket => config[:socket])
     length = db.query(config[:query]).count
 
     if length >= config[:crit]

@@ -30,7 +30,7 @@
 #
 
 require 'sensu-plugin/check/cli'
-require 'mysql'
+require 'mysql2'
 require 'inifile'
 
 class CheckMysqlReplicationStatus < Sensu::Plugin::Check::CLI
@@ -129,7 +129,7 @@ class CheckMysqlReplicationStatus < Sensu::Plugin::Check::CLI
     end
 
     begin
-      db = Mysql.new(db_host, db_user, db_pass, nil, config[:port], config[:socket])
+      db = Mysql2::Client.new(:hostname => config[:hostname], :username => db_user, :password => db_pass, :database =>config[:database], :port => config[:port].to_i, :socket => config[:socket])
 
       results = if db_conn.nil?
                   db.query 'SHOW SLAVE STATUS'

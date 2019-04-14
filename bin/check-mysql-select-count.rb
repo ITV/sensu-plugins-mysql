@@ -11,7 +11,7 @@
 # for details.
 
 require 'sensu-plugin/check/cli'
-require 'mysql'
+require 'mysql2'
 require 'inifile'
 
 class MysqlSelectCountCheck < Sensu::Plugin::Check::CLI
@@ -92,7 +92,7 @@ class MysqlSelectCountCheck < Sensu::Plugin::Check::CLI
     end
     raise 'Please specify hostname using -h or in mysql.cnf file' unless config[:host]
 
-    db = Mysql.real_connect(config[:host], db_user, db_pass, config[:database], config[:port], config[:socket])
+    db = Mysql2::Client.new(:hostname => config[:hostname], :username => db_user, :password => db_pass, :database =>config[:database], :port => config[:port].to_i, :socket => config[:socket])
 
     count = db.query(config[:query]).fetch_row[0].to_i
     if count >= config[:crit]

@@ -11,7 +11,7 @@
 # Check the size of the database and compare to crit and warn thresholds
 
 require 'sensu-plugin/check/cli'
-require 'mysql'
+require 'mysql2'
 require 'inifile'
 
 class CheckMysqlDisk < Sensu::Plugin::Check::CLI
@@ -95,7 +95,7 @@ class CheckMysqlDisk < Sensu::Plugin::Check::CLI
 
     begin
       total_size = 0.0
-      db = Mysql.real_connect(config[:host], db_user, db_pass, nil, config[:port], config[:socket])
+      db = Mysql2::Client.new(:hostname => config[:hostname], :username => db_user, :password => db_pass, :database =>config[:database], :port => config[:port].to_i, :socket => config[:socket])
 
       results = db.query <<-SQL
         SELECT table_schema,
