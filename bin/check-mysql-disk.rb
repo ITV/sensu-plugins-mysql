@@ -15,123 +15,134 @@ require 'mysql2'
 require 'inifile'
 
 class CheckMysqlDisk < Sensu::Plugin::Check::CLI
-  option :host,
-         short: '-h',
-         long: '--host=VALUE',
-         description: 'Database host'
+    option :host,
+        short: '-h',
+        long: '--host=VALUE',
+        description: 'Database host'
 
-  option :user,
-         short: '-u',
-         long: '--username=VALUE',
-         description: 'Database username'
+    option :user,
+        short: '-u',
+        long: '--username=VALUE',
+        description: 'Database username'
 
-  option :pass,
-         short: '-p',
-         long: '--password=VALUE',
-         description: 'Database password'
+    option :pass,
+        short: '-p',
+        long: '--password=VALUE',
+        description: 'Database password'
 
-  option :ini,
-         description: 'My.cnf ini file',
-         short: '-i',
-         long: '--ini VALUE'
+    option :ini,
+        description: 'My.cnf ini file',
+        short: '-i',
+        long: '--ini VALUE'
 
-  option :ini_section,
-         description: 'Section in my.cnf ini file',
-         long: '--ini-section VALUE',
-         default: 'client'
+    option :ini_section,
+        description: 'Section in my.cnf ini file',
+        long: '--ini-section VALUE',
+        default: 'client'
 
-  option :size,
-         short: '-s',
-         long: '--size=VALUE',
-         description: 'Database size',
-         proc: proc(&:to_f),
-         required: true
+    option :size,
+        short: '-s',
+        long: '--size=VALUE',
+        description: 'Database size',
+        proc: proc(&:to_f),
+        required: true
 
-  option :warn,
-         short: '-w',
-         long: '--warning=VALUE',
-         description: 'Warning threshold',
-         proc: proc(&:to_f),
-         default: 85
+    option :warn,
+        short: '-w',
+        long: '--warning=VALUE',
+        description: 'Warning threshold',
+        proc: proc(&:to_f),
+        default: 85
 
-  option :crit,
-         short: '-c',
-         long: '--critical=VALUE',
-         description: 'Critical threshold',
-         proc: proc(&:to_f),
-         default: 95
+    option :crit,
+        short: '-c',
+        long: '--critical=VALUE',
+        description: 'Critical threshold',
+        proc: proc(&:to_f),
+        default: 95
 
-  option :port,
-         description: 'Port to connect to',
-         short: '-P PORT',
-         long: '--port PORT',
-         proc: proc(&:to_i),
-         default: 3306
+    option :port,
+        description: 'Port to connect to',
+        short: '-P PORT',
+        long: '--port PORT',
+        proc: proc(&:to_i),
+        default: 3306
 
-  option :socket,
-         description: 'Socket to use',
-         short: '-S SOCKET',
-         long: '--socket SOCKET',
-         default: nil
+    option :socket,
+        description: 'Socket to use',
+        short: '-S SOCKET',
+        long: '--socket SOCKET',
+        default: nil
 
-  def run
-    if config[:ini]
-      ini = IniFile.load(config[:ini])
-      section = ini[config[:ini_section]]
-      db_user = section['user']
-      db_pass = section['password']
-    else
-      db_user = config[:user]
-      db_pass = config[:pass]
-    end
-    db_host = config[:host]
-    disk_size = config[:size]
-    critical_usage = config[:crit]
-    warning_usage = config[:warn]
-
-    if [db_host, db_user, db_pass, disk_size].any?(&:nil?)
-      unknown 'Must specify host, user, password and size'
-    end
-
-    begin
-      total_size = 0.0
-      db = Mysql2::Client.new(:hostname => config[:hostname], :username => db_user, :password => db_pass, :database =>config[:database], :port => config[:port].to_i, :socket => config[:socket])
-
-      results = db.query <<-SQL
-        SELECT table_schema,
-        count(*) TABLES,
-        concat(round(sum(table_rows)/1000000,2),'M') rows,
-        round(sum(data_length)/(1024*1024*1024),2) DATA,
-        round(sum(index_length)/(1024*1024*1024),2) idx,
-        round(sum(data_length+index_length)/(1024*1024*1024),2) total_size,
-        round(sum(index_length)/sum(data_length),2) idxfrac
-        FROM information_schema.TABLES group by table_schema
-      SQL
-
-      unless results.nil?
-        results.each_hash do |row|
-          # #YELLOW
-          total_size = total_size + row['total_size'].to_f # rubocop:disable Style/SelfAssignment
+    def run
+        if config[:ini]
+            ini = IniFile.load(config[:ini])
+            section  = ini[config[:ini_section]]
+            hostname = section['hostname']
+            db_user  = section['user']
+            db_pass  = section['password']
+            database = section['database']
+            port     = section['port'].to_i
+            socket   = section['socket']
+        else
+            hostname = config[:hostname]
+            db_user  = config[:user]
+            db_pass  = config[:password]
+            database = config[:database]
+            port     = config[:port].to_i
+            socket   = config[:socket]
         end
-      end
 
-      disk_use_percentage = total_size / disk_size * 100
-      diskstr = "DB size: #{total_size}, disk use: #{disk_use_percentage}%"
+        disk_size      = config[:size]
+        critical_usage = config[:crit]
+        warning_usage  = config[:warn]
 
-      if disk_use_percentage > critical_usage
-        critical "Database size exceeds critical threshold: #{diskstr}"
-      elsif disk_use_percentage > warning_usage
-        warning "Database size exceeds warning threshold: #{diskstr}"
-      else
-        ok diskstr
-      end
-    rescue Mysql::Error => e
-      errstr = "Error code: #{e.errno} Error message: #{e.error}"
-      critical "#{errstr} SQLSTATE: #{e.sqlstate}" if e.respond_to?('sqlstate')
-    rescue StandardError => e
-      critical e
-    ensure
-      db.close if db
+        if [db_host, db_user, db_pass, disk_size].any?(&:nil?)
+            unknown 'Must specify host, user, password and size'
+        end
+
+        begin
+
+            db = Mysql2::Client.new(:hostname => hostname, :username => db_user, :password => db_pass, :database => database, :port => port, :socket => socket)
+
+            total_size = 0.0
+
+            results = db.query <<-SQL
+                SELECT table_schema,
+                count(*) TABLES,
+                concat(round(sum(table_rows)/1000000,2),'M') rows,
+                round(sum(data_length)/(1024*1024*1024),2) DATA,
+                round(sum(index_length)/(1024*1024*1024),2) idx,
+                round(sum(data_length+index_length)/(1024*1024*1024),2) total_size,
+                round(sum(index_length)/sum(data_length),2) idxfrac
+                FROM information_schema.TABLES group by table_schema
+            SQL
+
+            unless results.nil?
+                results.each_hash do |row|
+                    # #YELLOW
+                    total_size = total_size + row['total_size'].to_f # rubocop:disable Style/SelfAssignment
+                end
+            end
+
+            disk_use_percentage = total_size / disk_size * 100
+            diskstr = "DB size: #{total_size}, disk use: #{disk_use_percentage}%"
+
+            if disk_use_percentage > critical_usage
+                critical "Database size exceeds critical threshold: #{diskstr}"
+            elsif disk_use_percentage > warning_usage
+                warning "Database size exceeds warning threshold: #{diskstr}"
+            else
+                ok diskstr
+            end
+
+            rescue Mysql2::Error => e
+                errstr = "Error code: #{e.errno} Error message: #{e.error}"
+                critical "#{errstr} SQLSTATE: #{e.sqlstate}" if e.respond_to?('sqlstate')
+            rescue StandardError => e
+                critical e
+            ensure
+                db.close if db
+        end
     end
-  end
 end
