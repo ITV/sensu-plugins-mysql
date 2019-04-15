@@ -11,8 +11,7 @@
 ## Files
  * bin/check-cloudwatch-mysql-sensu.rb
  * bin/check-mysql-alive.rb
- * bin/check-mysql-status.rb
- * bin/check-mysql-connections.rb
+  * bin/check-mysql-connections.rb
  * bin/check-mysql-disk.rb
  * bin/check-mysql-innodb-lock.rb
  * bin/check-mysql-threads.rb
