@@ -2,7 +2,7 @@ lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 require 'date'
-require_relative 'lib/sensu-plugins-mysql'
+require_relative 'lib/sensu-plugins-mysql2'
 
 Gem::Specification.new do |s| # rubocop:disable Metrics/BlockLength
     s.authors                = ['Sensu-Plugins and contributors']
