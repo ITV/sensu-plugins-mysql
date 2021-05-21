@@ -23,7 +23,7 @@ Gem::Specification.new do |s| # rubocop:disable Metrics/BlockLength
                                'production_status'  => 'unstable - testing recommended',
                                'release_draft'      => 'false',
                                'release_prerelease' => 'false' }
-    s.name                   = 'sensu-plugins-mysql'
+    s.name                   = 'sensu-plugins-mysql2'
     s.platform               = Gem::Platform::RUBY
     s.post_install_message   = 'You can use the embedded Ruby by setting EMBEDDED_RUBY=true in /etc/default/sensu'
     s.require_paths          = ['lib']
